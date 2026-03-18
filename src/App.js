@@ -612,9 +612,18 @@ function OFS({ children, ...props }) { return <select style={ofi} {...props}>{ch
 function Onboarding({ onComplete }) {
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({
-    company: '', firstName: '', lastName: '', email: '', phone: '', website: '',
-    vertical: '', region: '', partnerType: '',
-    payMethod: '', payEmail: '', payBank: '', payRouting: '', payAccount: '',
+    company: 'BoxCollider Inc.',
+    firstName: 'Joey',
+    lastName: 'DiGangi',
+    email: 'joey@boxcollider.com',
+    phone: '+1 (415) 555-0182',
+    website: 'https://boxcollider.com',
+    vertical: 'Technology / SaaS',
+    region: 'United States',
+    partnerType: 'var',
+    payMethod: 'paypal',
+    payEmail: 'payments@boxcollider.com',
+    payBank: '', payRouting: '', payAccount: '',
     agreed: false,
   });
   const setField = (k, v) => setForm(f => ({ ...f, [k]: v }));
