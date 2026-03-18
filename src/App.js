@@ -580,14 +580,16 @@ function Materials() {
 
 // ── LOGO SVG ─────────────────────────────────────────────────────────────────
 
+// Official KDAN logo from KDAN's public CDN
+const KDAN_LOGO_URL = 'https://www.kdan.com/images/company/img-kdan-logo.svg';
+
 function KdanLogoMark({ size = 32 }) {
-  // Large left chevron (right-pointing), small right triangle (top), dark dot (bottom)
   return (
-    <svg width={size} height={Math.round(size * 1.15)} viewBox="0 0 40 46" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <polygon points="2,2 22,14 22,28 2,40" fill="#1D9E75"/>
-      <polygon points="26,2 38,2 38,14" fill="#1D9E75"/>
-      <circle cx="20" cy="43" r="3" fill="#1a1a1a"/>
-    </svg>
+    <img
+      src={KDAN_LOGO_URL}
+      alt="KDAN"
+      style={{ height: size, width: 'auto', display: 'block' }}
+    />
   );
 }
 
@@ -637,8 +639,7 @@ function Onboarding({ onComplete }) {
       {/* Minimal topbar */}
       <div style={{ background: '#fff', borderBottom: '0.5px solid #e0ddd5', padding: '0 32px', height: 54, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <KdanLogoMark size={28} />
-          <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.12em', color: '#1a1a1a' }}>KDAN</span>
+          <KdanLogoMark size={36} />
           <div style={{ width: 1, height: 16, background: '#e0ddd5' }} />
           <span style={{ fontSize: 12, color: '#888' }}>Partner Portal</span>
         </div>
@@ -888,8 +889,7 @@ export default function App() {
     <div style={s.portal}>
       <div style={s.topbar}>
         <div style={s.topLeft}>
-          <KdanLogoMark size={28} />
-          <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.12em', color: '#1a1a1a', marginLeft: 2 }}>KDAN</span>
+          <KdanLogoMark size={36} />
           <div style={s.divider}/>
           <span style={s.portalLabel}>Partner Portal</span>
         </div>
