@@ -578,18 +578,32 @@ function Materials() {
   );
 }
 
-// ── LOGO SVG (reconstructed from brand asset) ──────────────────────────────
+// ── LOGO SVG ─────────────────────────────────────────────────────────────────
 
 function KdanLogoMark({ size = 32 }) {
-  // Large green left quadrilateral + small green right triangle + dark dot
+  // Large left chevron (right-pointing), small right triangle (top), dark dot (bottom)
   return (
-    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <polygon points="3,3 18,3 18,20 3,20" fill="#1D9E75" rx="2"/>
-      <polygon points="20,3 28,3 28,11" fill="#1D9E75"/>
-      <circle cx="15.5" cy="26" r="3" fill="#1a1a1a"/>
+    <svg width={size} height={Math.round(size * 1.15)} viewBox="0 0 40 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="2,2 22,14 22,28 2,40" fill="#1D9E75"/>
+      <polygon points="26,2 38,2 38,14" fill="#1D9E75"/>
+      <circle cx="20" cy="43" r="3" fill="#1a1a1a"/>
     </svg>
   );
 }
+
+// ── ONBOARDING FIELD HELPERS (defined outside Onboarding to prevent remount) ─
+
+function OFG({ label, full, children }) {
+  return (
+    <div style={{ display:'flex', flexDirection:'column', gap:5, ...(full ? { gridColumn:'1/-1' } : {}) }}>
+      <label style={{ fontSize:12, fontWeight:600, color:'#888' }}>{label}</label>
+      {children}
+    </div>
+  );
+}
+const ofi = { height:34, padding:'0 11px', borderRadius:8, border:'0.5px solid #ccc', background:'#fff', color:'#1a1a1a', fontSize:13, fontFamily:'inherit', outline:'none', width:'100%' };
+function OFI(props) { return <input style={ofi} {...props} />; }
+function OFS({ children, ...props }) { return <select style={ofi} {...props}>{children}</select>; }
 
 // ── ONBOARDING ─────────────────────────────────────────────────────────────
 
@@ -601,7 +615,7 @@ function Onboarding({ onComplete }) {
     payMethod: '', payEmail: '', payBank: '', payRouting: '', payAccount: '',
     agreed: false,
   });
-  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  const setField = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
   const steps = [
     { num: 1, label: 'Company info' },
@@ -610,15 +624,6 @@ function Onboarding({ onComplete }) {
     { num: 4, label: 'Agreement' },
   ];
 
-  const FG = ({ label, full, children }) => (
-    <div style={{ ...s.formGroup, ...(full ? { gridColumn: '1/-1' } : {}) }}>
-      <label style={s.formLabel}>{label}</label>
-      {children}
-    </div>
-  );
-  const FI = (props) => <input style={{ ...s.formInput, width: '100%' }} {...props} />;
-  const FS = ({ children, ...props }) => <select style={{ ...s.formInput, width: '100%' }} {...props}>{children}</select>;
-
   const canAdvance = () => {
     if (step === 1) return form.company && form.firstName && form.lastName && form.email;
     if (step === 2) return form.vertical && form.region && form.partnerType;
@@ -626,8 +631,6 @@ function Onboarding({ onComplete }) {
     if (step === 4) return form.agreed;
     return true;
   };
-
-  const initials = (form.firstName[0] || '') + (form.lastName[0] || '');
 
   return (
     <div style={{ minHeight: '100vh', background: '#f5f5f3', display: 'flex', flexDirection: 'column' }}>
@@ -693,19 +696,19 @@ function Onboarding({ onComplete }) {
 
             {step === 1 && (
               <div style={s.formGrid}>
-                <FG label="Company name" full><FI type="text" placeholder="BoxCollider Inc." value={form.company} onChange={e => set('company', e.target.value)} /></FG>
-                <FG label="First name"><FI type="text" placeholder="Jane" value={form.firstName} onChange={e => set('firstName', e.target.value)} /></FG>
-                <FG label="Last name"><FI type="text" placeholder="Smith" value={form.lastName} onChange={e => set('lastName', e.target.value)} /></FG>
-                <FG label="Work email" full><FI type="email" placeholder="jane@yourcompany.com" value={form.email} onChange={e => set('email', e.target.value)} /></FG>
-                <FG label="Phone (optional)"><FI type="tel" placeholder="+1 (555) 000-0000" value={form.phone} onChange={e => set('phone', e.target.value)} /></FG>
-                <FG label="Company website (optional)"><FI type="url" placeholder="https://yourcompany.com" value={form.website} onChange={e => set('website', e.target.value)} /></FG>
+                <OFG label="Company name" full><OFI type="text" placeholder="BoxCollider Inc." value={form.company} onChange={e => setField('company', e.target.value)} /></OFG>
+                <OFG label="First name"><OFI type="text" placeholder="Jane" value={form.firstName} onChange={e => setField('firstName', e.target.value)} /></OFG>
+                <OFG label="Last name"><OFI type="text" placeholder="Smith" value={form.lastName} onChange={e => setField('lastName', e.target.value)} /></OFG>
+                <OFG label="Work email" full><OFI type="email" placeholder="jane@yourcompany.com" value={form.email} onChange={e => setField('email', e.target.value)} /></OFG>
+                <OFG label="Phone (optional)"><OFI type="tel" placeholder="+1 (555) 000-0000" value={form.phone} onChange={e => setField('phone', e.target.value)} /></OFG>
+                <OFG label="Company website (optional)"><OFI type="url" placeholder="https://yourcompany.com" value={form.website} onChange={e => setField('website', e.target.value)} /></OFG>
               </div>
             )}
 
             {step === 2 && (
               <div style={s.formGrid}>
-                <FG label="Partner type" full>
-                  <FS value={form.partnerType} onChange={e => set('partnerType', e.target.value)}>
+                <OFG label="Partner type" full>
+                  <OFS value={form.partnerType} onChange={e => setField('partnerType', e.target.value)}>
                     <option value="">Select type...</option>
                     <option value="var">Value-added reseller (VAR)</option>
                     <option value="msp">Managed service provider (MSP)</option>
@@ -713,23 +716,23 @@ function Onboarding({ onComplete }) {
                     <option value="isv">ISV / SaaS platform</option>
                     <option value="dist">Distributor</option>
                     <option value="ref">Referral partner</option>
-                  </FS>
-                </FG>
-                <FG label="Primary vertical">
-                  <FS value={form.vertical} onChange={e => set('vertical', e.target.value)}>
+                  </OFS>
+                </OFG>
+                <OFG label="Primary vertical">
+                  <OFS value={form.vertical} onChange={e => setField('vertical', e.target.value)}>
                     <option value="">Select vertical...</option>
                     <option>Legal</option>
                     <option>Healthcare</option>
-                    <option>Finance & insurance</option>
+                    <option>Finance &amp; insurance</option>
                     <option>Real estate</option>
                     <option>Technology / SaaS</option>
                     <option>Government</option>
                     <option>Education</option>
                     <option>Other</option>
-                  </FS>
-                </FG>
-                <FG label="Primary region">
-                  <FS value={form.region} onChange={e => set('region', e.target.value)}>
+                  </OFS>
+                </OFG>
+                <OFG label="Primary region">
+                  <OFS value={form.region} onChange={e => setField('region', e.target.value)}>
                     <option value="">Select region...</option>
                     <option>United States</option>
                     <option>Canada</option>
@@ -737,8 +740,8 @@ function Onboarding({ onComplete }) {
                     <option>Europe</option>
                     <option>Asia Pacific</option>
                     <option>Other</option>
-                  </FS>
-                </FG>
+                  </OFS>
+                </OFG>
                 <div style={{ gridColumn: '1/-1', background: '#f8f7f4', borderRadius: 8, padding: '12px 14px' }}>
                   <div style={{ fontSize: 12, fontWeight: 600, color: '#1a1a1a', marginBottom: 8 }}>Which products do you plan to sell?</div>
                   <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
@@ -759,27 +762,27 @@ function Onboarding({ onComplete }) {
                 </div>
                 <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
                   {[{ val: 'paypal', label: '💳 PayPal', desc: 'Any PayPal email' }, { val: 'ach', label: '🏦 Bank (ACH)', desc: 'US bank accounts' }, { val: 'wire', label: '🌐 Wire transfer', desc: 'International' }].map(m => (
-                    <div key={m.val} onClick={() => set('payMethod', m.val)} style={{ flex: 1, border: form.payMethod === m.val ? `1.5px solid #1D9E75` : '0.5px solid #e0ddd5', borderRadius: 10, padding: '12px 14px', cursor: 'pointer', background: form.payMethod === m.val ? '#E1F5EE' : '#fff', transition: 'all 0.1s' }}>
+                    <div key={m.val} onClick={() => setField('payMethod', m.val)} style={{ flex: 1, border: form.payMethod === m.val ? '1.5px solid #1D9E75' : '0.5px solid #e0ddd5', borderRadius: 10, padding: '12px 14px', cursor: 'pointer', background: form.payMethod === m.val ? '#E1F5EE' : '#fff', transition: 'all 0.1s' }}>
                       <div style={{ fontSize: 13, fontWeight: 600, color: form.payMethod === m.val ? '#085041' : '#1a1a1a' }}>{m.label}</div>
                       <div style={{ fontSize: 11, color: '#888', marginTop: 3 }}>{m.desc}</div>
                     </div>
                   ))}
                 </div>
                 {form.payMethod === 'paypal' && (
-                  <div style={s.formGroup}><label style={s.formLabel}>PayPal email address</label><FI type="email" placeholder="payments@yourcompany.com" value={form.payEmail} onChange={e => set('payEmail', e.target.value)} /></div>
+                  <OFG label="PayPal email address"><OFI type="email" placeholder="payments@yourcompany.com" value={form.payEmail} onChange={e => setField('payEmail', e.target.value)} /></OFG>
                 )}
                 {form.payMethod === 'ach' && (
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-                    <FG label="Account holder name" full><FI type="text" value={form.payBank} onChange={e => set('payBank', e.target.value)} /></FG>
-                    <FG label="Routing number"><FI type="text" placeholder="9 digits" value={form.payRouting} onChange={e => set('payRouting', e.target.value)} /></FG>
-                    <FG label="Account number"><FI type="text" value={form.payAccount} onChange={e => set('payAccount', e.target.value)} /></FG>
+                    <OFG label="Account holder name" full><OFI type="text" value={form.payBank} onChange={e => setField('payBank', e.target.value)} /></OFG>
+                    <OFG label="Routing number"><OFI type="text" placeholder="9 digits" value={form.payRouting} onChange={e => setField('payRouting', e.target.value)} /></OFG>
+                    <OFG label="Account number"><OFI type="text" value={form.payAccount} onChange={e => setField('payAccount', e.target.value)} /></OFG>
                   </div>
                 )}
                 {form.payMethod === 'wire' && (
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-                    <FG label="Bank name" full><FI type="text" value={form.payBank} onChange={e => set('payBank', e.target.value)} /></FG>
-                    <FG label="SWIFT / BIC"><FI type="text" /></FG>
-                    <FG label="IBAN / Account number"><FI type="text" /></FG>
+                    <OFG label="Bank name" full><OFI type="text" value={form.payBank} onChange={e => setField('payBank', e.target.value)} /></OFG>
+                    <OFG label="SWIFT / BIC"><OFI type="text" /></OFG>
+                    <OFG label="IBAN / Account number"><OFI type="text" /></OFG>
                   </div>
                 )}
               </div>
@@ -787,7 +790,6 @@ function Onboarding({ onComplete }) {
 
             {step === 4 && (
               <div style={{ padding: 18 }}>
-                {/* Summary */}
                 <div style={{ background: '#f8f7f4', borderRadius: 10, padding: '14px 16px', marginBottom: 20 }}>
                   <div style={{ fontSize: 12, fontWeight: 600, color: '#888', marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Account summary</div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 20px', fontSize: 13 }}>
@@ -809,7 +811,7 @@ function Onboarding({ onComplete }) {
                   By joining the KDAN Partner Program, you agree to: represent KDAN products accurately and ethically; maintain confidentiality of pricing, roadmap, and customer data shared by KDAN; register deals through this portal before customer engagement to qualify for commission; comply with applicable export laws and regional regulations; and not engage in practices that conflict with KDAN's direct sales efforts. Commission rates are determined by partner tier and are subject to change with 30 days notice. Full terms available on request.
                 </div>
                 <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer', fontSize: 13 }}>
-                  <input type="checkbox" checked={form.agreed} onChange={e => set('agreed', e.target.checked)} style={{ marginTop: 2, accentColor: '#1D9E75', flexShrink: 0 }} />
+                  <input type="checkbox" checked={form.agreed} onChange={e => setField('agreed', e.target.checked)} style={{ marginTop: 2, accentColor: '#1D9E75', flexShrink: 0 }} />
                   <span>I have read and agree to the KDAN Partner Program terms and conditions.</span>
                 </label>
               </div>
@@ -817,13 +819,13 @@ function Onboarding({ onComplete }) {
 
             <div style={{ ...s.formFooter, justifyContent: 'space-between' }}>
               <div>
-                {step > 1 && <Btn onClick={() => setStep(s => s - 1)}>← Back</Btn>}
+                {step > 1 && <Btn onClick={() => setStep(prev => prev - 1)}>← Back</Btn>}
               </div>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 {!canAdvance() && <span style={{ fontSize: 11, color: '#aaa' }}>Complete required fields to continue</span>}
                 {step < 4
-                  ? <Btn primary onClick={() => canAdvance() && setStep(s => s + 1)} style={{ opacity: canAdvance() ? 1 : 0.5 }}>Continue →</Btn>
-                  : <Btn primary onClick={() => canAdvance() && onComplete(form)} style={{ opacity: canAdvance() ? 1 : 0.5 }}>Complete setup →</Btn>
+                  ? <Btn primary onClick={() => { if (canAdvance()) setStep(prev => prev + 1); }} style={{ opacity: canAdvance() ? 1 : 0.5 }}>Continue →</Btn>
+                  : <Btn primary onClick={() => { if (canAdvance()) onComplete(form); }} style={{ opacity: canAdvance() ? 1 : 0.5 }}>Complete setup →</Btn>
                 }
               </div>
             </div>
