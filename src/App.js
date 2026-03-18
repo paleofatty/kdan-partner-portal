@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+
 const COLORS = {
   green: { bg: '#E1F5EE', border: '#9FE1CB', text: '#085041', accent: '#1D9E75', dark: '#0F6E56' },
   blue:  { bg: '#E6F1FB', border: '#B5D4F4', text: '#185FA5' },
@@ -14,8 +15,8 @@ const s = {
   portal: { display:'flex', flexDirection:'column', minHeight:'100vh', background:'#f5f5f3' },
   topbar: { background:'#fff', borderBottom:'0.5px solid #e0ddd5', padding:'0 24px', height:54, display:'flex', alignItems:'center', justifyContent:'space-between', position:'sticky', top:0, zIndex:10 },
   topLeft: { display:'flex', alignItems:'center', gap:10 },
-  logoMark: { width:26, height:26, borderRadius:6, background:COLORS.green.accent, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontSize:12, fontWeight:600 },
-  logoText: { fontSize:13, fontWeight:600, color:'#1a1a1a' },
+  logoMark: { display:'flex', alignItems:'center' },
+  logoText: { fontSize:13, fontWeight:700, color:'#1a1a1a', letterSpacing:'0.12em' },
   divider: { width:1, height:16, background:'#e0ddd5' },
   portalLabel: { fontSize:12, color:'#888' },
   topRight: { display:'flex', alignItems:'center', gap:10 },
@@ -577,12 +578,278 @@ function Materials() {
   );
 }
 
+// ── LOGO SVG (reconstructed from brand asset) ──────────────────────────────
+
+function KdanLogoMark({ size = 32 }) {
+  // Large green left quadrilateral + small green right triangle + dark dot
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="3,3 18,3 18,20 3,20" fill="#1D9E75" rx="2"/>
+      <polygon points="20,3 28,3 28,11" fill="#1D9E75"/>
+      <circle cx="15.5" cy="26" r="3" fill="#1a1a1a"/>
+    </svg>
+  );
+}
+
+// ── ONBOARDING ─────────────────────────────────────────────────────────────
+
+function Onboarding({ onComplete }) {
+  const [step, setStep] = useState(1);
+  const [form, setForm] = useState({
+    company: '', firstName: '', lastName: '', email: '', phone: '', website: '',
+    vertical: '', region: '', partnerType: '',
+    payMethod: '', payEmail: '', payBank: '', payRouting: '', payAccount: '',
+    agreed: false,
+  });
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+
+  const steps = [
+    { num: 1, label: 'Company info' },
+    { num: 2, label: 'Partner profile' },
+    { num: 3, label: 'Payout setup' },
+    { num: 4, label: 'Agreement' },
+  ];
+
+  const FG = ({ label, full, children }) => (
+    <div style={{ ...s.formGroup, ...(full ? { gridColumn: '1/-1' } : {}) }}>
+      <label style={s.formLabel}>{label}</label>
+      {children}
+    </div>
+  );
+  const FI = (props) => <input style={{ ...s.formInput, width: '100%' }} {...props} />;
+  const FS = ({ children, ...props }) => <select style={{ ...s.formInput, width: '100%' }} {...props}>{children}</select>;
+
+  const canAdvance = () => {
+    if (step === 1) return form.company && form.firstName && form.lastName && form.email;
+    if (step === 2) return form.vertical && form.region && form.partnerType;
+    if (step === 3) return form.payMethod && (form.payMethod === 'paypal' ? form.payEmail : form.payBank);
+    if (step === 4) return form.agreed;
+    return true;
+  };
+
+  const initials = (form.firstName[0] || '') + (form.lastName[0] || '');
+
+  return (
+    <div style={{ minHeight: '100vh', background: '#f5f5f3', display: 'flex', flexDirection: 'column' }}>
+      {/* Minimal topbar */}
+      <div style={{ background: '#fff', borderBottom: '0.5px solid #e0ddd5', padding: '0 32px', height: 54, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <KdanLogoMark size={28} />
+          <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.12em', color: '#1a1a1a' }}>KDAN</span>
+          <div style={{ width: 1, height: 16, background: '#e0ddd5' }} />
+          <span style={{ fontSize: 12, color: '#888' }}>Partner Portal</span>
+        </div>
+        <span style={{ fontSize: 12, color: '#888' }}>New partner setup</span>
+      </div>
+
+      {/* Content */}
+      <div style={{ flex: 1, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '48px 24px' }}>
+        <div style={{ width: '100%', maxWidth: 600 }}>
+
+          {/* Step 1 intro card (shown only on step 1) */}
+          {step === 1 && (
+            <div style={{ textAlign: 'center', marginBottom: 36 }}>
+              <KdanLogoMark size={48} />
+              <div style={{ fontSize: 22, fontWeight: 700, color: '#1a1a1a', marginTop: 16 }}>Welcome to KDAN Partner Portal</div>
+              <div style={{ fontSize: 14, color: '#888', marginTop: 8, lineHeight: 1.6 }}>
+                Let's get your partner account set up. It takes about 3 minutes.<br/>
+                You'll be able to track leads, register deals, and receive commission payouts.
+              </div>
+            </div>
+          )}
+
+          {/* Step indicator */}
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 28 }}>
+            {steps.map((st, i) => (
+              <div key={st.num} style={{ display: 'flex', alignItems: 'center', flex: i < steps.length - 1 ? 1 : 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                  <div style={{
+                    width: 26, height: 26, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 12, fontWeight: 700,
+                    background: step === st.num ? '#1D9E75' : step > st.num ? '#E1F5EE' : '#f0ede6',
+                    color: step === st.num ? '#fff' : step > st.num ? '#0F6E56' : '#aaa',
+                    border: step > st.num ? '1.5px solid #9FE1CB' : 'none',
+                  }}>
+                    {step > st.num ? '✓' : st.num}
+                  </div>
+                  <span style={{ fontSize: 12, fontWeight: step === st.num ? 600 : 400, color: step === st.num ? '#1a1a1a' : '#aaa', whiteSpace: 'nowrap' }}>{st.label}</span>
+                </div>
+                {i < steps.length - 1 && <div style={{ flex: 1, height: 1, background: step > st.num ? '#9FE1CB' : '#e0ddd5', margin: '0 10px' }} />}
+              </div>
+            ))}
+          </div>
+
+          {/* Step cards */}
+          <div style={s.card}>
+            <div style={s.cardHeader}>
+              <span style={s.cardTitle}>
+                {step === 1 && 'Company information'}
+                {step === 2 && 'Partner profile'}
+                {step === 3 && 'Payout setup'}
+                {step === 4 && 'Review & agree'}
+              </span>
+              <span style={{ fontSize: 12, color: '#aaa' }}>Step {step} of 4</span>
+            </div>
+
+            {step === 1 && (
+              <div style={s.formGrid}>
+                <FG label="Company name" full><FI type="text" placeholder="BoxCollider Inc." value={form.company} onChange={e => set('company', e.target.value)} /></FG>
+                <FG label="First name"><FI type="text" placeholder="Jane" value={form.firstName} onChange={e => set('firstName', e.target.value)} /></FG>
+                <FG label="Last name"><FI type="text" placeholder="Smith" value={form.lastName} onChange={e => set('lastName', e.target.value)} /></FG>
+                <FG label="Work email" full><FI type="email" placeholder="jane@yourcompany.com" value={form.email} onChange={e => set('email', e.target.value)} /></FG>
+                <FG label="Phone (optional)"><FI type="tel" placeholder="+1 (555) 000-0000" value={form.phone} onChange={e => set('phone', e.target.value)} /></FG>
+                <FG label="Company website (optional)"><FI type="url" placeholder="https://yourcompany.com" value={form.website} onChange={e => set('website', e.target.value)} /></FG>
+              </div>
+            )}
+
+            {step === 2 && (
+              <div style={s.formGrid}>
+                <FG label="Partner type" full>
+                  <FS value={form.partnerType} onChange={e => set('partnerType', e.target.value)}>
+                    <option value="">Select type...</option>
+                    <option value="var">Value-added reseller (VAR)</option>
+                    <option value="msp">Managed service provider (MSP)</option>
+                    <option value="si">Systems integrator (SI)</option>
+                    <option value="isv">ISV / SaaS platform</option>
+                    <option value="dist">Distributor</option>
+                    <option value="ref">Referral partner</option>
+                  </FS>
+                </FG>
+                <FG label="Primary vertical">
+                  <FS value={form.vertical} onChange={e => set('vertical', e.target.value)}>
+                    <option value="">Select vertical...</option>
+                    <option>Legal</option>
+                    <option>Healthcare</option>
+                    <option>Finance & insurance</option>
+                    <option>Real estate</option>
+                    <option>Technology / SaaS</option>
+                    <option>Government</option>
+                    <option>Education</option>
+                    <option>Other</option>
+                  </FS>
+                </FG>
+                <FG label="Primary region">
+                  <FS value={form.region} onChange={e => set('region', e.target.value)}>
+                    <option value="">Select region...</option>
+                    <option>United States</option>
+                    <option>Canada</option>
+                    <option>Latin America</option>
+                    <option>Europe</option>
+                    <option>Asia Pacific</option>
+                    <option>Other</option>
+                  </FS>
+                </FG>
+                <div style={{ gridColumn: '1/-1', background: '#f8f7f4', borderRadius: 8, padding: '12px 14px' }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: '#1a1a1a', marginBottom: 8 }}>Which products do you plan to sell?</div>
+                  <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                    {['LynxPDF', 'DottedSign Business', 'DottedSign API', 'ComPDFKit'].map(p => (
+                      <label key={p} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, cursor: 'pointer' }}>
+                        <input type="checkbox" style={{ accentColor: '#1D9E75' }} /> {p}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {step === 3 && (
+              <div style={{ padding: 18 }}>
+                <div style={{ fontSize: 13, color: '#888', marginBottom: 16, lineHeight: 1.6 }}>
+                  Commissions are paid monthly on the 15th for deals closed in the prior month. Minimum payout is $100 USD.
+                </div>
+                <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
+                  {[{ val: 'paypal', label: '💳 PayPal', desc: 'Any PayPal email' }, { val: 'ach', label: '🏦 Bank (ACH)', desc: 'US bank accounts' }, { val: 'wire', label: '🌐 Wire transfer', desc: 'International' }].map(m => (
+                    <div key={m.val} onClick={() => set('payMethod', m.val)} style={{ flex: 1, border: form.payMethod === m.val ? `1.5px solid #1D9E75` : '0.5px solid #e0ddd5', borderRadius: 10, padding: '12px 14px', cursor: 'pointer', background: form.payMethod === m.val ? '#E1F5EE' : '#fff', transition: 'all 0.1s' }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: form.payMethod === m.val ? '#085041' : '#1a1a1a' }}>{m.label}</div>
+                      <div style={{ fontSize: 11, color: '#888', marginTop: 3 }}>{m.desc}</div>
+                    </div>
+                  ))}
+                </div>
+                {form.payMethod === 'paypal' && (
+                  <div style={s.formGroup}><label style={s.formLabel}>PayPal email address</label><FI type="email" placeholder="payments@yourcompany.com" value={form.payEmail} onChange={e => set('payEmail', e.target.value)} /></div>
+                )}
+                {form.payMethod === 'ach' && (
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                    <FG label="Account holder name" full><FI type="text" value={form.payBank} onChange={e => set('payBank', e.target.value)} /></FG>
+                    <FG label="Routing number"><FI type="text" placeholder="9 digits" value={form.payRouting} onChange={e => set('payRouting', e.target.value)} /></FG>
+                    <FG label="Account number"><FI type="text" value={form.payAccount} onChange={e => set('payAccount', e.target.value)} /></FG>
+                  </div>
+                )}
+                {form.payMethod === 'wire' && (
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                    <FG label="Bank name" full><FI type="text" value={form.payBank} onChange={e => set('payBank', e.target.value)} /></FG>
+                    <FG label="SWIFT / BIC"><FI type="text" /></FG>
+                    <FG label="IBAN / Account number"><FI type="text" /></FG>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {step === 4 && (
+              <div style={{ padding: 18 }}>
+                {/* Summary */}
+                <div style={{ background: '#f8f7f4', borderRadius: 10, padding: '14px 16px', marginBottom: 20 }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: '#888', marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Account summary</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 20px', fontSize: 13 }}>
+                    {[
+                      ['Company', form.company || '—'],
+                      ['Contact', `${form.firstName} ${form.lastName}`.trim() || '—'],
+                      ['Email', form.email || '—'],
+                      ['Partner type', form.partnerType || '—'],
+                      ['Vertical', form.vertical || '—'],
+                      ['Region', form.region || '—'],
+                      ['Payout method', form.payMethod === 'paypal' ? 'PayPal' : form.payMethod === 'ach' ? 'Bank (ACH)' : form.payMethod === 'wire' ? 'Wire transfer' : '—'],
+                    ].map(([label, val]) => (
+                      <div key={label}><span style={{ color: '#888' }}>{label}:</span> <strong>{val}</strong></div>
+                    ))}
+                  </div>
+                </div>
+                <div style={{ background: '#fff', border: '0.5px solid #e0ddd5', borderRadius: 10, padding: '14px 16px', marginBottom: 20, fontSize: 12, color: '#666', lineHeight: 1.8, maxHeight: 140, overflowY: 'auto' }}>
+                  <strong style={{ color: '#1a1a1a' }}>KDAN Partner Agreement (Summary)</strong><br/>
+                  By joining the KDAN Partner Program, you agree to: represent KDAN products accurately and ethically; maintain confidentiality of pricing, roadmap, and customer data shared by KDAN; register deals through this portal before customer engagement to qualify for commission; comply with applicable export laws and regional regulations; and not engage in practices that conflict with KDAN's direct sales efforts. Commission rates are determined by partner tier and are subject to change with 30 days notice. Full terms available on request.
+                </div>
+                <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer', fontSize: 13 }}>
+                  <input type="checkbox" checked={form.agreed} onChange={e => set('agreed', e.target.checked)} style={{ marginTop: 2, accentColor: '#1D9E75', flexShrink: 0 }} />
+                  <span>I have read and agree to the KDAN Partner Program terms and conditions.</span>
+                </label>
+              </div>
+            )}
+
+            <div style={{ ...s.formFooter, justifyContent: 'space-between' }}>
+              <div>
+                {step > 1 && <Btn onClick={() => setStep(s => s - 1)}>← Back</Btn>}
+              </div>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                {!canAdvance() && <span style={{ fontSize: 11, color: '#aaa' }}>Complete required fields to continue</span>}
+                {step < 4
+                  ? <Btn primary onClick={() => canAdvance() && setStep(s => s + 1)} style={{ opacity: canAdvance() ? 1 : 0.5 }}>Continue →</Btn>
+                  : <Btn primary onClick={() => canAdvance() && onComplete(form)} style={{ opacity: canAdvance() ? 1 : 0.5 }}>Complete setup →</Btn>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── ROOT ───────────────────────────────────────────────────────────────────
 
 export default function App() {
+  const [onboarded, setOnboarded] = useState(false);
+  const [partnerInfo, setPartnerInfo] = useState({ company: 'BoxCollider Inc.', initials: 'BC' });
   const [page, setPage] = useState('dashboard');
   const [leads, setLeads] = useState(initialLeads);
   const [deals, setDeals] = useState(initialDeals);
+
+  const handleOnboardingComplete = (form) => {
+    const initials = ((form.firstName[0] || '') + (form.lastName[0] || '')).toUpperCase() || 'P';
+    setPartnerInfo({ company: form.company || 'Your Company', initials });
+    setOnboarded(true);
+  };
+
+  if (!onboarded) return <Onboarding onComplete={handleOnboardingComplete} />;
 
   const nav = (p) => setPage(p);
   const newLeads = leads.filter(l => l.status === 'new').length;
@@ -619,15 +886,15 @@ export default function App() {
     <div style={s.portal}>
       <div style={s.topbar}>
         <div style={s.topLeft}>
-          <div style={s.logoMark}>K</div>
-          <span style={s.logoText}>KDAN Mobile</span>
+          <KdanLogoMark size={28} />
+          <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.12em', color: '#1a1a1a', marginLeft: 2 }}>KDAN</span>
           <div style={s.divider}/>
           <span style={s.portalLabel}>Partner Portal</span>
         </div>
         <div style={s.topRight}>
           <span style={s.tierBadge}>Silver Partner</span>
-          <span style={s.partnerName}>BoxCollider Inc.</span>
-          <div style={s.avatar}>BC</div>
+          <span style={s.partnerName}>{partnerInfo.company}</span>
+          <div style={s.avatar}>{partnerInfo.initials}</div>
         </div>
       </div>
       <div style={s.layout}>
